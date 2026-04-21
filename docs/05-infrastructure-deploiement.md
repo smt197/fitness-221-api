@@ -8,23 +8,26 @@ Nous utilisons une image légère **`python:3.10-slim`** pour assurer l'efficaci
 - **Préparation** : Variables d'environnement pour assurer l'optimisation Python (`PYTHONDONTWRITEBYTECODE`, `PYTHONUNBUFFERED`).
 - **Exécution** : Application servie via le serveur ASGI **Uvicorn**.
 
-## 🚀 Déploiement sur Render
-Le projet peut être déployé en continu sur une plateforme comme **Render**.
-1.  **Web Service** : L'image Docker de la branche principale est construite automatiquement par Render.
-2.  **Base de Données** : Utilisation d'une instance PostgreSQL de Render ou d'un fournisseur cloud connecté à l'application.
+## 🚀 Déploiement sur Dokploy
+Le projet est déployé en continu sur une instance **Dokploy**.
+1.  **Web Service** : L'image Docker de la branche principale est construite automatiquement par Dokploy.
+2.  **Base de Données** : Utilisation d'une instance PostgreSQL connectée à l'application.
 
 ```mermaid
 graph LR
-    User[Utilisateurs Externes] -- HTTPS --> Render[Ingress / Load Balancer]
+    User[Utilisateurs Externes] -- HTTPS --> CF[Cloudflare Tunnel]
     
-    subgraph "Infrastructure Cloud (Render)"
+    subgraph "Infrastructure Cloud (Dokploy)"
         subgraph "Docker Container"
-            Render --> App["FastAPI & Uvicorn"]
+            CF --> App["FastAPI & Uvicorn"]
             App --> SQLA[SQLAlchemy]
         end
         SQLA -- PostgreSQL Protocol --> DB[(Base de Données)]
     end
 ```
+
+## 🌐 Exposition via Cloudflare Tunnel
+Pour éviter d'exposer directement le serveur Dokploy et ses ports, le mapping vers l'application est assuré par un **Cloudflare Tunnel**. Cela garantit le HTTPS automatique et permet de n'ouvrir aucun port sur le pare-feu du serveur backend.
 
 ## 🌐 Configuration des Variables (Environment)
 La sécurisation et le fonctionnement de l'API reposent sur les variables d'environnement telles que :
