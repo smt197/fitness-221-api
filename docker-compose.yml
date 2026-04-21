@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   db:
+    container_name: fitness-221-db
     image: postgres:15
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgrespassword
@@ -13,14 +15,19 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   api:
+    container_name: fitness-221-api
     build: .
+    image: ghcr.io/smt197/fitness-221-api:latest
+    pull_policy: always
+    restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql://postgres:postgrespassword@db:5432/fitness221
       SECRET_KEY: super-secret-key-12345!
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:
